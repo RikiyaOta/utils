@@ -49,20 +49,52 @@ Guidance for Claude Code when working in this repository.
 - For each point: what is wrong, why it matters, and how to fix it.
 - Point out what is done well too, but only when it is actually true.
 
-## Lints and custom linters
+## Lints
 
 - **Any review point that can be expressed as a lint must become a lint.** The
   same thing should never be pointed out by hand twice.
+- Reach for the upstream tooling before writing anything. Clippy ships more
+  than 800 lints; `restriction` (~130 of them) exists precisely to enforce
+  project policy, and is opt-in lint by lint. Search
+  [the lint list](https://rust-lang.github.io/rust-clippy/master/) first.
 - Order of preference:
   1. An existing Clippy or rustc lint, enabled in `[workspace.lints]` in the
-     root `Cargo.toml`, or configured via `clippy.toml`.
-  2. If no existing lint covers it, write a custom lint with
+     root `Cargo.toml`.
+  2. A `clippy.toml` setting. `disallowed-methods`, `disallowed-types` and
+     `disallowed-macros` ban a specific path outright, and thresholds such as
+     `too-many-lines` are tunable — no lint code required. This covers most of
+     what looks at first like it needs a bespoke lint.
+  3. Only if both fail: a custom lint via
      [`cargo-dylint`](https://github.com/trailofbits/dylint) under `lints/`.
-- `dylint` is a development tool, so it does not break the standard-library-only
-  rule for the tools themselves. Its lints live outside the workspace build.
-- Every lint that gets added must run in CI.
+     Expect this never to happen. It costs a pinned nightly toolchain and
+     compiler-internals knowledge, so propose it explicitly and get agreement
+     before starting.
 - Points that cannot be mechanised (design, naming, documentation habits) go
   into `docs/lessons.md` instead.
+- Every lint that gets enabled must run in CI.
+
+### Working with lint configuration
+
+- When enabling a group in `[workspace.lints.clippy]`, give it `priority = -1`
+  so that individual lints listed after it can override it.
+- Never enable the whole `restriction` group — the lints in it contradict each
+  other by design. Pick them one at a time.
+- Do not deny `clippy::todo`. The hybrid workflow above depends on `todo!()`.
+- Prefer `#[expect(lint, reason = "…")]` over `#[allow(…)]`: it warns once the
+  exception stops being needed. Every exception carries a reason.
+- When a lint is enabled, say in the commit message which review point it
+  replaces.
+
+### Contributing lints upstream
+
+- Sending a new lint to Clippy itself is a good Rust-community goal, and a good
+  exercise once the basics are comfortable — `cargo dev new_lint` and the
+  Clippy book are the entry points.
+- It is **not** this repository's mechanism for preventing repeat review
+  points. Clippy only accepts lints that generalise beyond one project, and the
+  path from merge to a stable release this repository can rely on takes months.
+- So treat it as a separate learning track. Never let a repo-level convention
+  wait on an upstream pull request.
 
 ## Learning log
 
