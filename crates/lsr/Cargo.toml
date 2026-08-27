@@ -1,0 +1,11 @@
+[package]
+name = "lsr"
+description = "A reimplementation of the Unix `ls` command, for learning Rust."
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
