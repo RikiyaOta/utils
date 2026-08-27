@@ -72,6 +72,10 @@ Guidance for Claude Code when working in this repository.
 - Points that cannot be mechanised (design, naming, documentation habits) go
   into `docs/lessons.md` instead.
 - Every lint that gets enabled must run in CI.
+- **When a lint takes over a convention written down in prose, delete the
+  prose in the same change**, and let the lint's comment in `Cargo.toml` carry
+  the reasoning. A rule described in two places is a rule that will disagree
+  with itself.
 
 ### Working with lint configuration
 
@@ -116,17 +120,22 @@ Guidance for Claude Code when working in this repository.
 
 ## Code conventions
 
-- No `unsafe`.
+Conventions that a lint already enforces are **not** repeated here — see
+`[workspace.lints]` in the root `Cargo.toml`, where each entry carries the rule
+it stands for. Two sources of truth drift apart, and only one of them runs.
+What follows is what no lint can check.
+
 - Errors: `Result` with a hand-rolled error enum implementing `Display` and
   `std::error::Error`, or `Box<dyn Error>` for a first pass. Explain the
   trade-off when the choice comes up.
-- `unwrap()` / `expect()` only where the invariant is genuinely local, with a
-  comment saying why it cannot fail. Never for user input or I/O.
-- `main` stays thin: parse arguments, call into the library, map errors to exit
-  codes.
+- `main` parses arguments, calls into the library, and maps errors to exit
+  codes. Logic lives below it, not in it.
 - Exit codes follow the tool being reimplemented (`ls` returns 2 on error, and
   so on). Check the real behaviour rather than guessing.
 - Write tests alongside the code, including the failure cases.
+- To step outside an enforced convention, write
+  `#[expect(clippy::the_lint, reason = "…")]` on the narrowest possible scope.
+  The reason is the comment that would otherwise have been asked for in review.
 
 ## Verification
 

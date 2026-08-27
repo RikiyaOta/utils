@@ -12,3 +12,28 @@ rust-version = "1.85"
 
 [workspace.dependencies]
 common = { path = "crates/common" }
+
+# Lints that stand in for conventions we would otherwise repeat by hand.
+# Each entry names the rule it enforces; the rationale lives in CLAUDE.md.
+# Groups are deliberately not enabled here — lints are picked one at a time,
+# so no `priority` juggling is needed yet.
+
+[workspace.lints.rust]
+# No `unsafe`. Absolute, so `forbid`: it cannot be lifted by an inner `allow`.
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+# Errors reach the user as a `Result`, never as a panic. An exception must be
+# written as `#[expect(clippy::unwrap_used, reason = "…")]`, which the two
+# `allow_attributes*` lints below turn into a required, self-expiring comment.
+unwrap_used = "warn"
+expect_used = "warn"
+
+# `main` maps errors to exit codes; nothing below it terminates the process.
+exit = "warn"
+
+# Exceptions must be `#[expect(…)]`, not `#[allow(…)]`, and must say why:
+# `expect` warns once the exception stops being needed, so dead exemptions
+# cannot pile up silently.
+allow_attributes = "warn"
+allow_attributes_without_reason = "warn"

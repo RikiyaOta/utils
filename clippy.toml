@@ -1,0 +1,10 @@
+# Clippy configuration. See CLAUDE.md for the policy these settings serve.
+
+# The MSRV in [workspace.package]; makes `clippy::incompatible_msrv` meaningful.
+msrv = "1.85"
+
+# `unwrap()` and `expect()` are denied in the tools, where an unhandled error
+# would reach the user as a panic. Inside tests a panic *is* the failure
+# report, so they stay allowed there.
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
