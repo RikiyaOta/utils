@@ -1,51 +1,56 @@
 # utils
 
-Rust の学習用に、Unix の標準コマンドを自分で再実装した CLI ツール集です。
+A collection of small command-line tools I write for myself, in Rust.
 
-## 目的
+Some of them reimplement existing commands; others exist simply because I want
+them. Either way, writing them is also how I learn the language.
 
-- Rust の言語仕様・標準ライブラリに手を動かしながら慣れる
-- ファイル I/O、パス操作、エラーハンドリング、プロセスの終了コードといった
-  「小さいけれど実用的な CLI」を作るのに必要な要素を一通り経験する
-- 既存のコマンドの仕様を読み解き、少しずつ再現していく
+## Goals
 
-## 方針
+- Get hands-on practice with Rust and its standard library
+- Work through what a small but usable CLI actually needs: file I/O, path
+  handling, error handling, exit codes
+- Where a tool has an existing counterpart, read its behaviour closely and
+  reproduce it piece by piece
 
-- **標準ライブラリのみで実装する。** 学習が目的なので、外部クレートは原則として追加しない。
-  CLI の引数解析も自前で書く（`clap` などの導入は必要になったら改めて検討する）。
-- **1 ツール = 1 クレート。** 各ツールは `crates/<tool-name>/` 以下に独立したクレートとして置き、
-  ルートの Cargo ワークスペースでまとめて管理する。
-- **システムのコマンドと名前を衝突させない。** 実装したコマンドには `r` を付けた名前を使う
-  （`ls` → `lsr`）。
+## Principles
 
-## 収録ツール
+- **Standard library only.** Learning is the point, so no external crates as a
+  rule. Argument parsing is hand-written too (`clap` and friends are something
+  to reconsider later, if it ever becomes worth it).
+- **One tool, one crate.** Each tool lives in `crates/<tool-name>/` as its own
+  crate, tied together by the Cargo workspace at the repository root.
+- **Don't collide with commands already on `PATH`.** The first tool is named
+  `lsr` rather than `ls` for that reason. There is no fixed naming convention
+  yet — it will be settled once there are more tools to judge it by.
 
-| クレート | バイナリ | 対応するコマンド | 状態 |
-| --- | --- | --- | --- |
-| [`crates/lsr`](crates/lsr) | `lsr` | `ls` | 雛形のみ |
-| [`crates/common`](crates/common) | （ライブラリ） | — | 空。共通ロジックが出てきたら切り出す |
+## Tools
 
-## 使い方
+| Crate | Binary | Notes |
+| --- | --- | --- |
+| [`crates/lsr`](crates/lsr) | `lsr` | A take on `ls`. Scaffolding only so far. |
+| [`crates/common`](crates/common) | (library) | Empty. Shared logic moves here once there is any. |
+
+## Usage
 
 ```console
-# ワークスペース全体をビルドする
+# Build the whole workspace
 cargo build --workspace
 
-# 個別のツールを実行する
+# Run a single tool
 cargo run -p lsr
 
-# テスト・Lint
+# Tests and lints
 cargo test --workspace
 cargo clippy --workspace --all-targets -- -D warnings
 cargo fmt --all --check
 ```
 
-## ライセンス
+## License
 
-以下のいずれかを選択して利用できます。
+Licensed under either of:
 
-- Apache License, Version 2.0 （[`LICENSE-APACHE`](LICENSE-APACHE)）
-- MIT License （[`LICENSE-MIT`](LICENSE-MIT)）
+- Apache License, Version 2.0 ([`LICENSE-APACHE`](LICENSE-APACHE))
+- MIT License ([`LICENSE-MIT`](LICENSE-MIT))
 
-意図的に別段の表明をしない限り、このリポジトリへの貢献は上記のデュアルライセンスの下で
-提供されるものとします。
+at your option.

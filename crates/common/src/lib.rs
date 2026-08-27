@@ -1,3 +1,3 @@
-//! 複数のツールで共通化したいロジックを置くためのクレート。
+//! Logic shared between the tools in this workspace.
 //!
-//! 今はまだ何もない。必要になった時点で切り出していく。
+//! Empty for now; things move here once a second tool needs them.

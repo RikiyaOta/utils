@@ -2,7 +2,6 @@
 members = ["crates/*"]
 resolver = "2"
 
-# 各クレートで共通のメタデータ。個別クレート側では `foo.workspace = true` で参照する。
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
@@ -11,7 +10,5 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/RikiyaOta/utils"
 rust-version = "1.85"
 
-# 学習目的のため、原則として標準ライブラリのみで実装する。
-# 外部クレートを使う場合はここにバージョンを集約する。
 [workspace.dependencies]
 common = { path = "crates/common" }
