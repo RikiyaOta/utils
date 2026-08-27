@@ -1,0 +1,6 @@
+[tools]
+"aqua:suzuki-shunsuke/pinact" = "4.1.1"
+
+[settings]
+lockfile = true
+minimum_release_age = "3d"
