@@ -46,6 +46,43 @@ cargo clippy --workspace --all-targets -- -D warnings
 cargo fmt --all --check
 ```
 
+## Development setup
+
+The Rust toolchain is pinned in `rust-toolchain.toml`, so `cargo` picks up the
+right compiler on its own — no setup needed for the commands above. Note that
+this is a different thing from `rust-version` in `Cargo.toml`, which declares
+the minimum supported Rust version and is deliberately left behind the pinned
+toolchain.
+
+Everything else is pinned in `mise.toml` and installed with
+[mise](https://mise.jdx.dev):
+
+```console
+mise install
+```
+
+## Supply chain
+
+GitHub Actions are pinned to full commit SHAs rather than tags. Tags are
+mutable, and repointing a widely used tag at malicious code is an attack that
+has already happened in the wild. [pinact](https://github.com/suzuki-shunsuke/pinact)
+maintains the pins:
+
+```console
+# Pin, or re-pin after adding an action
+pinact run
+
+# What CI enforces: every action pinned, every version comment accurate
+pinact run --check --verify-comment
+```
+
+The workflow also restricts `GITHUB_TOKEN` to `contents: read`, which bounds
+what a compromised action could do with it.
+
+Pinning freezes versions, so Renovate is what keeps them moving: it updates the
+action SHAs, the Rust toolchain, mise-managed tools and any Cargo dependencies,
+and waits 3 days after a release before proposing it.
+
 ## License
 
 Licensed under either of:
