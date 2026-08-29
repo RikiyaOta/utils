@@ -40,14 +40,17 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', 'rust-toolchain.toml') }}
           restore-keys: ${{ runner.os }}-cargo-
 
+      # The commands behind these tasks are defined in mise.toml, which the git
+      # hooks in .githooks/ also use. Steps stay separate so that a failure is
+      # labelled with the check that produced it.
       - name: Check formatting
-        run: cargo fmt --all --check
+        run: mise run fmt-check
 
       - name: Build
-        run: cargo build --workspace --all-targets
+        run: mise run build
 
       - name: Clippy
-        run: cargo clippy --workspace --all-targets -- -D warnings
+        run: mise run lint
 
       - name: Test
-        run: cargo test --workspace
+        run: mise run test

@@ -40,10 +40,11 @@ cargo build --workspace
 # Run a single tool
 cargo run -p lsr
 
-# Tests and lints
-cargo test --workspace
-cargo clippy --workspace --all-targets -- -D warnings
-cargo fmt --all --check
+# Tests and lints, as mise tasks. CI and the git hooks run these same tasks,
+# so the commands behind them are defined once, in mise.toml.
+mise run test
+mise run lint        # reports; never rewrites
+mise run fmt         # rewrites in place (`mise run fmt-check` only reports)
 ```
 
 ## Development setup
@@ -60,6 +61,35 @@ Everything else is pinned in `mise.toml` and installed with
 ```console
 mise install
 ```
+
+### Git hooks
+
+The same checks run from git hooks, so a red build is caught before it reaches
+CI. `.git/hooks` is outside version control, so the hooks live in `.githooks/`
+instead and are enabled per clone:
+
+```console
+git config core.hooksPath .githooks
+```
+
+- `pre-commit` formats the workspace and re-stages the result, then runs
+  Clippy. Formatting is applied because there is nothing to learn from running
+  rustfmt by hand; lint violations are only reported, because there is.
+- `pre-push` runs formatting, Clippy and the test suite. The slow part lives
+  here rather than in `pre-commit` so that committing stays quick.
+
+`git commit --no-verify` and `git push --no-verify` skip them.
+
+Two things worth knowing before relying on them:
+
+- **They see the working tree, not the index.** The `pre-commit` hook re-stages
+  the `.rs` files that were already staged, so if you staged part of a file with
+  `git add -p`, the rest of that file is swept into the commit as well. Clippy
+  and the tests likewise read what is on disk. Stage whole files, or expect the
+  two to differ.
+- **Hooks inherit the environment of whatever invoked git.** A terminal has mise
+  on `PATH`; an IDE launched from the desktop often does not, and the hook then
+  fails with a message saying so rather than skipping the checks silently.
 
 ## Supply chain
 

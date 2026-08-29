@@ -1,0 +1,31 @@
+#!/bin/sh
+# Run by `git commit`, before the commit message editor opens. A non-zero exit
+# aborts the commit; `git commit --no-verify` skips the hook entirely.
+#
+# Formatting is fixed in place, because there is nothing to learn from applying
+# rustfmt by hand. Lint violations are only reported, because there is.
+#
+# The test suite is deliberately absent: it runs in .githooks/pre-push, so that
+# committing stays fast as the suite grows.
+set -eu
+
+if ! command -v mise > /dev/null 2>&1; then
+	echo "pre-commit: mise is not on PATH, so the checks cannot run." >&2
+	echo "Hooks inherit the environment of whatever invoked git, and editors" >&2
+	echo "and IDEs do not read your shell profile the way a terminal does." >&2
+	echo "To commit anyway: git commit --no-verify" >&2
+	exit 1
+fi
+
+mise run fmt
+
+# `cargo fmt` rewrote the files on disk, but the index still holds the copies
+# staged before it ran. Re-stage the .rs files that were already staged, so
+# that what gets committed is what was just formatted. Files that were not
+# staged stay out of the commit, formatted or not.
+git diff --name-only --cached --diff-filter=ACMR -- '*.rs' |
+	while IFS= read -r file; do
+		git add -- "$file"
+	done
+
+mise run lint
