@@ -4,3 +4,27 @@
 [settings]
 lockfile = true
 minimum_release_age = "3d"
+
+# The checks live here as tasks so that CI (.github/workflows/ci.yml) and the
+# git hooks (.githooks/) invoke the same commands instead of keeping their own
+# copies, which would drift apart.
+
+[tasks.fmt]
+description = "Format the workspace in place."
+run = "cargo fmt --all"
+
+[tasks.fmt-check]
+description = "Report unformatted files without touching them."
+run = "cargo fmt --all --check"
+
+[tasks.build]
+description = "Build every target in the workspace, tests and examples included."
+run = "cargo build --workspace --all-targets"
+
+[tasks.lint]
+description = "Report lint violations. It never fixes them; fixing them by hand is the point."
+run = "cargo clippy --workspace --all-targets -- -D warnings"
+
+[tasks.test]
+description = "Run the workspace test suite."
+run = "cargo test --workspace"
