@@ -1,0 +1,23 @@
+#!/bin/sh
+# Run by `git push`, before anything is sent to the remote. A non-zero exit
+# aborts the push; `git push --no-verify` skips the hook entirely.
+#
+# This is what CI runs, minus the supply-chain checks that need a GitHub token.
+# The test suite lives here rather than in .githooks/pre-commit: it is the slow
+# part, and pushing is rarer than committing.
+#
+# `fmt-check` repeats what pre-commit already did, cheaply, because a commit
+# made with --no-verify would otherwise reach the remote unformatted.
+set -eu
+
+if ! command -v mise > /dev/null 2>&1; then
+	echo "pre-push: mise is not on PATH, so the checks cannot run." >&2
+	echo "Hooks inherit the environment of whatever invoked git, and editors" >&2
+	echo "and IDEs do not read your shell profile the way a terminal does." >&2
+	echo "To push anyway: git push --no-verify" >&2
+	exit 1
+fi
+
+mise run fmt-check
+mise run lint
+mise run test
