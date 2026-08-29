@@ -37,3 +37,7 @@ exit = "warn"
 # cannot pile up silently.
 allow_attributes = "warn"
 allow_attributes_without_reason = "warn"
+
+# `if cond { continue; } else { … }` inside a loop: the `else` is redundant,
+# since skipping via `continue` already prevents the block from running.
+needless_continue = "warn"
