@@ -4,10 +4,10 @@ use std::process::ExitCode;
 fn main() -> ExitCode {
     let options = lsr::parse_options(std::env::args().skip(1));
 
-    match lsr::list_names(Path::new("."), options) {
-        Ok(names) => {
-            for name in names {
-                println!("{name}");
+    match lsr::list_entries(Path::new("."), options) {
+        Ok(entries) => {
+            for entry in &entries {
+                println!("{}", lsr::format_entry(entry));
             }
             ExitCode::SUCCESS
         }
