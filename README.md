@@ -112,6 +112,29 @@ Pinning freezes versions, so Renovate is what keeps them moving: it updates the
 action SHAs, the Rust toolchain, mise-managed tools and any Cargo dependencies,
 and waits 3 days after a release before proposing it.
 
+## Releases
+
+Each crate in `crates/` is versioned and released independently. A crate
+opts out with `publish = false` in its `Cargo.toml` (`common` did, before it
+was removed for having no content yet).
+
+[release-plz](https://release-plz.dev) drives this from
+`.github/workflows/release-plz.yml`, reading
+[Conventional Commits](https://www.conventionalcommits.org/) (see
+`CLAUDE.md`) to decide what changed:
+
+- Every push to `main` opens or updates a PR that bumps the version and
+  changelog of whichever crates changed.
+- Merging that PR tags the commit, publishes the crate(s) to crates.io, and
+  creates a GitHub Release with the generated notes.
+
+Publishing uses crates.io's [Trusted Publishing](https://crates.io/docs/trusted-publishing)
+(OIDC) rather than a stored API token: the workflow proves its identity
+directly, so there is no long-lived secret to leak or rotate. This only works
+for versions *after* a crate's first release, though — crates.io requires a
+new crate's very first version to be published by hand, once, with
+`cargo publish`.
+
 ## License
 
 Licensed under either of:

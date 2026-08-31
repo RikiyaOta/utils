@@ -154,7 +154,17 @@ cargo test --workspace
 ## Git and pull requests
 
 - Keep commits small and focused; one concept per commit.
-- Commit messages in English: an imperative subject line, and a body when the
-  reasoning is not obvious from the diff.
+- Commit messages in English, as [Conventional Commits](https://www.conventionalcommits.org/):
+  an imperative subject line prefixed with a type, and a body when the
+  reasoning is not obvious from the diff. release-plz
+  (`.github/workflows/release-plz.yml`) reads the type to decide each crate's
+  next version and to write its changelog, so picking the right one is not
+  just style:
+  - `feat:` — user-visible new behaviour. Bumps the minor version.
+  - `fix:` — a bug fix. Bumps the patch version.
+  - `feat!:` / a `BREAKING CHANGE:` footer — an incompatible change. Bumps
+    the major version.
+  - `docs:`, `refactor:`, `test:`, `ci:`, `chore:` — no version bump; grouped
+    separately (or omitted) in the changelog.
 - Do not commit or push unless asked.
 - Do not open a pull request unless asked.
