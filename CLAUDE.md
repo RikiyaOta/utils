@@ -113,7 +113,7 @@ Guidance for Claude Code when working in this repository.
   without being asked.
 - **One tool, one crate**, at `crates/<tool-name>/`, joined by the workspace at
   the repository root.
-- **Do not collide with commands already on `PATH`** (hence `lsr`, not `ls`).
+- **Do not collide with commands already on `PATH`** (hence `teru`, not `ls`).
 - Edition 2024, MSRV 1.85. Inherit package fields from `[workspace.package]`.
 - Shared logic goes to `crates/common` only once a second tool actually needs
   it. Do not generalise ahead of time.
@@ -154,7 +154,17 @@ cargo test --workspace
 ## Git and pull requests
 
 - Keep commits small and focused; one concept per commit.
-- Commit messages in English: an imperative subject line, and a body when the
-  reasoning is not obvious from the diff.
+- Commit messages in English, as [Conventional Commits](https://www.conventionalcommits.org/):
+  an imperative subject line prefixed with a type, and a body when the
+  reasoning is not obvious from the diff. release-plz
+  (`.github/workflows/release-plz.yml`) reads the type to decide each crate's
+  next version and to write its changelog, so picking the right one is not
+  just style:
+  - `feat:` — user-visible new behaviour. Bumps the minor version.
+  - `fix:` — a bug fix. Bumps the patch version.
+  - `feat!:` / a `BREAKING CHANGE:` footer — an incompatible change. Bumps
+    the major version.
+  - `docs:`, `refactor:`, `test:`, `ci:`, `chore:` — no version bump; grouped
+    separately (or omitted) in the changelog.
 - Do not commit or push unless asked.
 - Do not open a pull request unless asked.

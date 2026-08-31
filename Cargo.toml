@@ -10,8 +10,14 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/RikiyaOta/utils"
 rust-version = "1.85"
 
-[workspace.dependencies]
-common = { path = "crates/common" }
+# Applies to every crate: Cargo only reads [profile.*] from the workspace
+# root, not from member manifests. Kept minimal since these are small,
+# I/O-bound CLI tools, not something that benefits from heavier tuning.
+[profile.release]
+# Published binaries don't need debug symbols; this only shrinks the file.
+strip = true
+# "thin" LTO: most of the size/speed benefit of full LTO, far less build time.
+lto = "thin"
 
 # Lints that stand in for conventions we would otherwise repeat by hand.
 # Each entry names the rule it enforces; the rationale lives in CLAUDE.md.
@@ -37,3 +43,13 @@ exit = "warn"
 # cannot pile up silently.
 allow_attributes = "warn"
 allow_attributes_without_reason = "warn"
+
+# `if cond { continue; } else { … }` inside a loop: the `else` is redundant,
+# since skipping via `continue` already prevents the block from running.
+needless_continue = "warn"
+
+# `format!("{}", x)` where `x` is a bare variable: write `format!("{x}")`
+# instead. Only applies when the argument is a plain identifier — an
+# expression like `entry.name` or `a.len()` still needs to be passed
+# positionally, since only identifiers can be captured inline.
+uninlined_format_args = "warn"
