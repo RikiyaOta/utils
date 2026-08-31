@@ -29,7 +29,6 @@ them. Either way, writing them is also how I learn the language.
 | Crate | Binary | Notes |
 | --- | --- | --- |
 | [`crates/teru`](crates/teru) | `teru` | A take on `ls`. Supports plain listing, `-a`, and `-l`. |
-| [`crates/common`](crates/common) | (library) | Empty. Shared logic moves here once there is any. |
 
 ## Usage
 

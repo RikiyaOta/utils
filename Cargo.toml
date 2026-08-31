@@ -10,8 +10,14 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/RikiyaOta/utils"
 rust-version = "1.85"
 
-[workspace.dependencies]
-common = { path = "crates/common" }
+# Applies to every crate: Cargo only reads [profile.*] from the workspace
+# root, not from member manifests. Kept minimal since these are small,
+# I/O-bound CLI tools, not something that benefits from heavier tuning.
+[profile.release]
+# Published binaries don't need debug symbols; this only shrinks the file.
+strip = true
+# "thin" LTO: most of the size/speed benefit of full LTO, far less build time.
+lto = "thin"
 
 # Lints that stand in for conventions we would otherwise repeat by hand.
 # Each entry names the rule it enforces; the rationale lives in CLAUDE.md.
