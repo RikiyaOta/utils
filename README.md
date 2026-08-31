@@ -128,6 +128,14 @@ was removed for having no content yet).
 - Merging that PR tags the commit, publishes the crate(s) to crates.io, and
   creates a GitHub Release with the generated notes.
 
+**Merge the release PR with a regular merge commit, not squash-merge.**
+release-plz releases by checking out the release PR's last commit; squash
+merging replaces it with a new commit GitHub creates, so release-plz falls
+back to releasing whatever is on `main` instead of what was actually
+reviewed. Harmless for a single maintainer with no merge queue, but the
+regular-merge habit costs nothing and avoids depending on that. Ordinary
+(non-release) PRs are unaffected — squash-merge those as usual.
+
 Publishing uses crates.io's [Trusted Publishing](https://crates.io/docs/trusted-publishing)
 (OIDC) rather than a stored API token: the workflow proves its identity
 directly, so there is no long-lived secret to leak or rotate. This only works
