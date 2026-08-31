@@ -7,5 +7,5 @@ name = "common"
 version = "0.1.0"
 
 [[package]]
-name = "lsr"
+name = "teru"
 version = "0.1.0"

@@ -1,5 +1,5 @@
 [package]
-name = "lsr"
+name = "teru"
 description = "A reimplementation of the Unix `ls` command, for learning Rust."
 version.workspace = true
 edition.workspace = true

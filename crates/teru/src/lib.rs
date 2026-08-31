@@ -1,4 +1,4 @@
-//! Core logic for the `lsr` command line tool.
+//! Core logic for the `teru` command line tool.
 //!
 //! `main.rs` only parses arguments and maps [`Error`] to an exit code;
 //! everything else lives here so it can be unit tested directly.
@@ -99,7 +99,7 @@ mod tests {
 
     #[test]
     fn nonexistent_directory_is_an_error() {
-        let dir = std::env::temp_dir().join("lsr-test-this-should-not-exist");
+        let dir = std::env::temp_dir().join("teru-test-this-should-not-exist");
 
         let result = list_entries(&dir, Options::default());
 

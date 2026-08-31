@@ -113,7 +113,7 @@ Guidance for Claude Code when working in this repository.
   without being asked.
 - **One tool, one crate**, at `crates/<tool-name>/`, joined by the workspace at
   the repository root.
-- **Do not collide with commands already on `PATH`** (hence `lsr`, not `ls`).
+- **Do not collide with commands already on `PATH`** (hence `teru`, not `ls`).
 - Edition 2024, MSRV 1.85. Inherit package fields from `[workspace.package]`.
 - Shared logic goes to `crates/common` only once a second tool actually needs
   it. Do not generalise ahead of time.

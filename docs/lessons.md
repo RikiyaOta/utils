@@ -10,7 +10,7 @@ Each entry: what was pointed out, why it matters, and what to do instead.
 
 ## Bind a repeated method-call result to a local variable
 
-`crates/lsr/src/lib.rs`, `format_permissions`: called `metadata.mode()` nine
+`crates/teru/src/format.rs`, `format_permissions`: called `metadata.mode()` nine
 times (once per permission bit check) instead of binding it once with
 `let mode = metadata.mode();` at the top of the function.
 

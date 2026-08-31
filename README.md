@@ -21,14 +21,14 @@ them. Either way, writing them is also how I learn the language.
 - **One tool, one crate.** Each tool lives in `crates/<tool-name>/` as its own
   crate, tied together by the Cargo workspace at the repository root.
 - **Don't collide with commands already on `PATH`.** The first tool is named
-  `lsr` rather than `ls` for that reason. There is no fixed naming convention
+  `teru` rather than `ls` for that reason. There is no fixed naming convention
   yet — it will be settled once there are more tools to judge it by.
 
 ## Tools
 
 | Crate | Binary | Notes |
 | --- | --- | --- |
-| [`crates/lsr`](crates/lsr) | `lsr` | A take on `ls`. Scaffolding only so far. |
+| [`crates/teru`](crates/teru) | `teru` | A take on `ls`. Supports plain listing, `-a`, and `-l`. |
 | [`crates/common`](crates/common) | (library) | Empty. Shared logic moves here once there is any. |
 
 ## Usage
@@ -38,7 +38,7 @@ them. Either way, writing them is also how I learn the language.
 cargo build --workspace
 
 # Run a single tool
-cargo run -p lsr
+cargo run -p teru
 
 # Tests and lints, as mise tasks. CI and the git hooks run these same tasks,
 # so the commands behind them are defined once, in mise.toml.

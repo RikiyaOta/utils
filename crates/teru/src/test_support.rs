@@ -16,7 +16,7 @@ pub(crate) fn temp_dir(name: &str) -> PathBuf {
     let file = location.file().replace(['/', '\\'], "_");
 
     let dir = std::env::temp_dir().join(format!(
-        "lsr-test-{name}-{file}-{}-{}",
+        "teru-test-{name}-{file}-{}-{}",
         location.line(),
         std::process::id()
     ));
