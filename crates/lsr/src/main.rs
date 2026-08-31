@@ -1,16 +1,23 @@
+use lsr::args;
+use lsr::error;
+use lsr::format;
 use std::path::Path;
 use std::process::ExitCode;
 
-fn main() -> ExitCode {
-    let options = lsr::parse_options(std::env::args().skip(1));
+fn run() -> Result<(), error::Error> {
+    let options = args::parse_options(std::env::args().skip(1));
+    let entries = lsr::list_entries(Path::new("."), options)?;
 
-    match lsr::list_entries(Path::new("."), options) {
-        Ok(entries) => {
-            for entry in &entries {
-                println!("{}", lsr::format_entry(entry));
-            }
-            ExitCode::SUCCESS
-        }
+    for entry in &entries {
+        println!("{}", format::format_entry(entry)?);
+    }
+
+    Ok(())
+}
+
+fn main() -> ExitCode {
+    match run() {
+        Ok(()) => ExitCode::SUCCESS,
         Err(err) => {
             eprintln!("lsr: {err}");
             ExitCode::FAILURE

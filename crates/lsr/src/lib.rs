@@ -3,68 +3,16 @@
 //! `main.rs` only parses arguments and maps [`Error`] to an exit code;
 //! everything else lives here so it can be unit tested directly.
 
-use std::fmt;
-use std::os::unix::fs::MetadataExt;
+pub mod args;
+mod datetime;
+pub mod error;
+pub mod format;
+#[cfg(test)]
+mod test_support;
+
+use args::Options;
+use error::Error;
 use std::path::Path;
-
-/// Errors that can occur while listing a directory.
-#[derive(Debug)]
-pub enum Error {
-    /// Reading the directory itself, or one of its entries, failed.
-    Io(std::io::Error),
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Io(err) => write!(f, "{err}"),
-        }
-    }
-}
-
-impl std::error::Error for Error {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        match self {
-            Self::Io(err) => Some(err),
-        }
-    }
-}
-
-impl From<std::io::Error> for Error {
-    fn from(err: std::io::Error) -> Self {
-        Self::Io(err)
-    }
-}
-
-/// Options controlling how a directory listing is produced.
-#[derive(Debug, Default, Clone, Copy)]
-pub struct Options {
-    /// Include entries whose name starts with `.` (the `-a` flag).
-    ///
-    /// `false` is the default, matching plain `ls`.
-    pub all: bool,
-
-    /// Show permissions and size for each entry (the `-l` flag).
-    ///
-    /// `false` is the default, matching plain `ls`.
-    pub long: bool,
-}
-
-/// Parses command-line arguments (excluding argv\[0\]) into [`Options`].
-///
-/// Only `-a` and `-l` are recognised for now; anything else is silently
-/// ignored. Rejecting unknown flags is a separate step.
-pub fn parse_options<I: IntoIterator<Item = String>>(args: I) -> Options {
-    let mut options = Options::default();
-    for arg in args {
-        match arg.as_str() {
-            "-a" => options.all = true,
-            "-l" => options.long = true,
-            _ => {}
-        }
-    }
-    options
-}
 
 /// One entry in a directory listing.
 #[derive(Debug)]
@@ -113,85 +61,11 @@ pub fn list_entries(dir: &Path, options: Options) -> Result<Vec<Entry>, Error> {
     Ok(entries)
 }
 
-/// Formats `entry` the way `main` prints it: just the name normally, or
-/// `<permissions> <size> <name>` when `entry.metadata` is `Some` (i.e.
-/// [`Options::long`] was set).
-pub fn format_entry(entry: &Entry) -> String {
-    match &entry.metadata {
-        Some(metadata) => format!(
-            "{} {} {}",
-            format_permissions(metadata),
-            metadata.len(),
-            entry.name
-        ),
-        None => entry.name.clone(),
-    }
-}
-
-/// Formats the 10-character permission string `ls -l` shows first, e.g.
-/// `-rw-r--r--` for a regular file or `drwxr-xr-x` for a directory.
-///
-/// Owner/group *names* and the hard-link count are out of scope: turning a
-/// uid into a username needs `libc`, which this project does not depend on.
-fn format_permissions(metadata: &std::fs::Metadata) -> String {
-    let file_type_char = if metadata.is_dir() {
-        'd'
-    } else if metadata.is_symlink() {
-        'l'
-    } else {
-        '-'
-    };
-
-    fn permission_text(r: bool, w: bool, x: bool) -> String {
-        format!(
-            "{}{}{}",
-            if r { 'r' } else { '-' },
-            if w { 'w' } else { '-' },
-            if x { 'x' } else { '-' }
-        )
-    }
-
-    fn has_permission(mode: u32, mask: u32) -> bool {
-        mode & mask != 0
-    }
-
-    let mode = metadata.mode();
-
-    format!(
-        "{}{}{}{}",
-        file_type_char,
-        permission_text(
-            has_permission(mode, 0o400),
-            has_permission(mode, 0o200),
-            has_permission(mode, 0o100),
-        ),
-        permission_text(
-            has_permission(mode, 0o040),
-            has_permission(mode, 0o020),
-            has_permission(mode, 0o010),
-        ),
-        permission_text(
-            has_permission(mode, 0o004),
-            has_permission(mode, 0o002),
-            has_permission(mode, 0o001),
-        ),
-    )
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::test_support::temp_dir;
     use std::fs;
-    use std::os::unix::fs::PermissionsExt;
-    use std::path::PathBuf;
-
-    /// Creates a fresh, empty temporary directory unique to `name` and
-    /// returns its path. Callers are responsible for removing it again.
-    fn temp_dir(name: &str) -> PathBuf {
-        let dir = std::env::temp_dir().join(format!("lsr-test-{name}-{}", std::process::id()));
-        fs::create_dir_all(&dir).expect("failed to create temp dir for test");
-        dir
-    }
 
     /// Extracts just the names from `entries`, in order.
     fn names_of(entries: &[Entry]) -> Vec<String> {
@@ -266,28 +140,6 @@ mod tests {
     }
 
     #[test]
-    fn parse_options_defaults_to_all_false_and_long_false() {
-        let options = parse_options(Vec::new());
-
-        assert!(!options.all);
-        assert!(!options.long);
-    }
-
-    #[test]
-    fn parse_options_recognises_dash_a() {
-        let options = parse_options(vec!["-a".to_string()]);
-
-        assert!(options.all);
-    }
-
-    #[test]
-    fn parse_options_recognises_dash_l() {
-        let options = parse_options(vec!["-l".to_string()]);
-
-        assert!(options.long);
-    }
-
-    #[test]
     fn long_option_populates_metadata() {
         let dir = temp_dir("long-metadata");
         fs::write(dir.join("file.txt"), b"").expect("failed to create file.txt");
@@ -314,32 +166,6 @@ mod tests {
         let entries = list_entries(&dir, Options::default()).expect("list_entries should succeed");
 
         assert!(entries[0].metadata.is_none());
-
-        fs::remove_dir_all(&dir).expect("failed to clean up temp dir");
-    }
-
-    #[test]
-    fn regular_file_permissions_are_formatted() {
-        let dir = temp_dir("perm-file");
-        let path = dir.join("file.txt");
-        fs::write(&path, b"").expect("failed to create file.txt");
-        fs::set_permissions(&path, fs::Permissions::from_mode(0o644))
-            .expect("failed to set permissions");
-
-        let metadata = fs::symlink_metadata(&path).expect("failed to read metadata");
-
-        assert_eq!(format_permissions(&metadata), "-rw-r--r--");
-
-        fs::remove_dir_all(&dir).expect("failed to clean up temp dir");
-    }
-
-    #[test]
-    fn directory_permissions_start_with_d() {
-        let dir = temp_dir("perm-dir");
-
-        let metadata = fs::symlink_metadata(&dir).expect("failed to read metadata");
-
-        assert_eq!(&format_permissions(&metadata)[..1], "d");
 
         fs::remove_dir_all(&dir).expect("failed to clean up temp dir");
     }

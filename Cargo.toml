@@ -41,3 +41,9 @@ allow_attributes_without_reason = "warn"
 # `if cond { continue; } else { … }` inside a loop: the `else` is redundant,
 # since skipping via `continue` already prevents the block from running.
 needless_continue = "warn"
+
+# `format!("{}", x)` where `x` is a bare variable: write `format!("{x}")`
+# instead. Only applies when the argument is a plain identifier — an
+# expression like `entry.name` or `a.len()` still needs to be passed
+# positionally, since only identifiers can be captured inline.
+uninlined_format_args = "warn"
