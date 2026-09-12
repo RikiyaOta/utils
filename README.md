@@ -112,6 +112,10 @@ Pinning freezes versions, so Renovate is what keeps them moving: it updates the
 action SHAs, the Rust toolchain, mise-managed tools and any Cargo dependencies,
 and waits 3 days after a release before proposing it.
 
+Patch updates merge themselves once CI passes; minor, major and digest updates
+wait for a human. A moved digest on an unchanged version tag is exactly the
+attack the pins exist to catch, so it is never automerged.
+
 ## Releases
 
 Each crate in `crates/` is versioned and released independently. A crate
