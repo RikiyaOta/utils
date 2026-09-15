@@ -4,15 +4,17 @@
   "minimumReleaseAge": "3 days",
   "dependencyDashboard": true,
   "separateMinorPatch": true,
+  "reviewers": ["RikiyaOta"],
   "packageRules": [
     {
       "matchManagers": ["github-actions"],
       "groupName": "GitHub Actions"
     },
     {
-      "description": "Patch releases merge themselves once CI is green. They are the updates that arrive weekly and that nobody reads: reviewing them by hand trains the habit of clicking merge without looking, which is worse than not looking at all. minimumReleaseAge above still keeps a fresh release out of the repository for three days, and minor, major and digest updates are still merged by a human.",
+      "description": "Patch releases merge themselves once CI is green. They are the updates that arrive weekly and that nobody reads: reviewing them by hand trains the habit of clicking merge without looking, which is worse than not looking at all. minimumReleaseAge above still keeps a fresh release out of the repository for three days, and minor, major and digest updates are still merged by a human. Requesting a review on a pull request that merges itself would send exactly the notification this rule exists to avoid, so the reviewer set at the top level is cleared here.",
       "matchUpdateTypes": ["patch"],
-      "automerge": true
+      "automerge": true,
+      "reviewers": []
     }
   ]
 }
