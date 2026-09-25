@@ -29,6 +29,7 @@ them. Either way, writing them is also how I learn the language.
 | Crate | Binary | Notes |
 | --- | --- | --- |
 | [`crates/teru`](crates/teru) | `teru` | A take on `ls`. Supports plain listing, `-a`, and `-l`. |
+| [`crates/akuta`](crates/akuta) | `akuta` | An `rm` replacement that moves files to the XDG trash. Work in progress. |
 
 ## Usage
 

@@ -1,0 +1,24 @@
+[package]
+name = "akuta"
+description = "An rm replacement that moves files to the XDG trash, for learning Rust."
+version = "0.1.0"
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+# Not released until the `todo!()`s are filled in and the tool actually works.
+# Remove this line to let release-plz publish it; note that crates.io needs a
+# new crate's first version to be published by hand (see the root README).
+publish = false
+
+[lints]
+workspace = true
+
+# Duplicates the workspace root's [profile.release], for the same reason as
+# in crates/teru/Cargo.toml: only this copy applies to `cargo install akuta`.
+[profile.release]
+strip = true
+lto = "thin"
+
+[dependencies]
