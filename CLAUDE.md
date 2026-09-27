@@ -166,5 +166,9 @@ cargo test --workspace
     the major version.
   - `docs:`, `refactor:`, `test:`, `ci:`, `chore:` — no version bump; grouped
     separately (or omitted) in the changelog.
+- PR titles follow the same format. Pull requests are squash-merged, so the
+  title is the commit message release-plz actually reads; its format is
+  checked by `.github/workflows/pr-title.yml`. Choosing the right type is
+  still a judgement call.
 - Do not commit or push unless asked.
 - Do not open a pull request unless asked.

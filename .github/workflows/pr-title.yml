@@ -1,0 +1,37 @@
+name: PR title
+
+# Pull requests are squash-merged, so the PR title becomes the commit
+# message on main, and release-plz reads its Conventional Commits type to
+# decide each crate's next version and changelog entry. The commits on a
+# branch are squashed away, so only the title is checked.
+#
+# This checks the format only. Whether the type is the *right* one (`feat`
+# vs. `fix` vs. `chore`) is a judgement call; see CLAUDE.md.
+
+on:
+  pull_request:
+    # `edited` re-runs the check after the title is fixed.
+    types: [opened, edited, synchronize, reopened]
+
+permissions: {}
+
+jobs:
+  conventional-commits:
+    name: Conventional Commits title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the PR title
+        # The title is passed through the environment rather than written
+        # into the script with ${{ }}: anyone who opens a PR controls it,
+        # and interpolating it directly would let them inject shell code.
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          # <type>[(<scope>)][!]: <description>
+          pattern='^(feat|fix|docs|refactor|test|ci|chore|build|perf|style|revert)(\([a-z0-9._-]+\))?!?: [^ ].*$'
+          if [[ ! $TITLE =~ $pattern ]]; then
+            echo "::error::PR title is not a Conventional Commits subject: $TITLE"
+            echo "Expected '<type>[(<scope>)][!]: <description>', e.g. 'feat: add -a flag to teru'."
+            echo "Allowed types: feat, fix, docs, refactor, test, ci, chore, build, perf, style, revert."
+            exit 1
+          fi
