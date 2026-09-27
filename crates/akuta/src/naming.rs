@@ -7,9 +7,14 @@ use std::ffi::{OsStr, OsString};
 ///
 /// Used both to pick a free name inside the trash and to suggest a new name
 /// when restoring onto an existing file.
-#[expect(unused_variables, reason = "body is todo!(); delete once implemented")]
 pub fn numbered(base: &OsStr, n: u32) -> OsString {
-    todo!("return base unchanged for 0, base followed by `_n` otherwise")
+    if n == 0 {
+        base.to_os_string()
+    } else {
+        let mut s = base.to_os_string();
+        s.push(format!("_{n}"));
+        s
+    }
 }
 
 #[cfg(test)]
