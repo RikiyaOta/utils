@@ -108,13 +108,9 @@ pinact run --check --verify-comment
 The workflow also restricts `GITHUB_TOKEN` to `contents: read`, which bounds
 what a compromised action could do with it.
 
-Pinning freezes versions, so Renovate is what keeps them moving: it updates the
-action SHAs, the Rust toolchain, mise-managed tools and any Cargo dependencies,
-and waits 3 days after a release before proposing it.
-
-Patch updates merge themselves once CI passes; minor, major and digest updates
-wait for a human. A moved digest on an unchanged version tag is exactly the
-attack the pins exist to catch, so it is never automerged.
+Pinning freezes versions, and they are bumped by hand when needed. Renovate is
+configured in `.github/renovate.json` but switched off with `"enabled": false`;
+remove that line to bring automatic update pull requests back.
 
 ## Releases
 
